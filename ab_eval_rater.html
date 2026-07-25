@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Which one is Rami?</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:640px;margin:40px auto;padding:0 20px;line-height:1.5}
+.prompt{background:#f1f1f3;padding:14px 18px;border-radius:14px;margin:20px 0;font-size:17px}
+.opt{border:2px solid #ddd;border-radius:14px;padding:14px 18px;margin:12px 0;cursor:pointer;font-size:17px}
+.opt:hover{border-color:#888;background:#fafafa}
+.bar{height:6px;background:#eee;border-radius:3px;margin:24px 0}
+.fill{height:100%;background:#4a9;border-radius:3px;transition:width .2s}
+#code{width:100%;height:120px;font-family:monospace;font-size:12px;margin-top:12px}
+button{font-size:16px;padding:10px 20px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+small{color:#666}
+</style></head><body>
+<h2>Which reply is the real person?</h2>
+<p><small>So you will see messages (about 30 of them), for each message, there are 2 responses: 1 written by me, 1 written by the model. Try to find the one that was written by me.</small></p>
+<div id="setup">
+  <p><b>Your name:</b> <input id="rater" style="font-size:16px;padding:6px"></p>
+  <button onclick="start()">Start</button>
+</div>
+<div id="quiz" style="display:none">
+  <div class="bar"><div class="fill" id="fill" style="width:0%"></div></div>
+  <div id="n"><small></small></div>
+  <div class="prompt" id="prompt"></div>
+  <div class="opt" id="optA" onclick="pick('a')"></div>
+  <div class="opt" id="optB" onclick="pick('b')"></div>
+</div>
+<div id="done" style="display:none">
+  <h3>All done — thank you!</h3>
+  <p>Copy the code below and send it back to Rami:</p>
+  <textarea id="code" readonly onclick="this.select()"></textarea>
+</div>
+<script>
+const ITEMS = [{"id": 0, "prompt": "im awakee", "a": "I'll send mine soon!", "b": "Hi hi good morning!!"}, {"id": 1, "prompt": "Omg thank you! You're so sweet 🥹", "a": "🙌thanks for ur kind words ☺️", "b": "Yeah ofc!!! I would be sad if I wasn't able to help u 😭"}, {"id": 2, "prompt": "hiiii", "a": "What're you up to??", "b": "Hiii"}, {"id": 3, "prompt": "i lowkey lose track of time when i read", "a": "I need to start getting rid of all the trash yk", "b": "lol that's good to pass time atleast"}, {"id": 4, "prompt": "ill do some digging after i eat lunch", "a": "I'm here", "b": "Heh digging"}, {"id": 5, "prompt": "Ohayoooo🥱💕", "a": "Ohayooo 😘😘😘😘😘", "b": "OHAYOO 💕💕💕💕💕"}, {"id": 6, "prompt": "my initial one it wasn't readable so i decided to write out instead", "a": "I don't mind, I just answer when I'm available 😌", "b": "Ooof yeah that is ugly🥲"}, {"id": 7, "prompt": "shes typing", "a": "Maybe u can msg with her now", "b": "Hmph. I just wanna be dominant alpha to a femboy employee 😛"}, {"id": 8, "prompt": "meow", "a": "I'll be home by 8:30 probably", "b": "Bark"}, {"id": 9, "prompt": "sybau", "a": "No u", "b": "I just finished class"}, {"id": 10, "prompt": "do u wanna plan tomorrow on like the project?", "a": "Yeah we can, would u rather hop in a call a bit soon and talk?", "b": "Yeah yeah okay~~ so when will u be free?"}, {"id": 11, "prompt": "mmm should we continue tomorrow instead?", "a": "No I'm serious", "b": "Noooo I can in 25! And we're almost done! Just putting it together"}, {"id": 12, "prompt": "oki?", "a": "Okayyy!!", "b": "Yes alpha"}, {"id": 13, "prompt": "if ure really that hot just wear a tanktop", "a": "lol ikkk. But I like the challenge kinda", "b": "Yeah but now it's humid 😮💨"}, {"id": 14, "prompt": "So now you are getting boba?? 🤭", "a": "Hehe Un 😅😌😌", "b": "We got boba so now we’re talking a little 😅😅😌"}, {"id": 15, "prompt": "wbu???", "a": "I'll do exercise and watch some things ig", "b": "I was gonna say like the 15 min or so right?"}, {"id": 16, "prompt": "wya rn", "a": "I'm in advising rn", "b": "I'm in the kitchen"}, {"id": 17, "prompt": "Ahh! Yeah I remembered 😉 iineeee 😚 did you eat good??? 🤭", "a": "Moo the food was too small 😮‍💨😮‍💨 so after that I ate something else also 🤭😜", "b": "I'm glad u ate well 🥹💗 me too I'm happy since ur my gf and we can communicate easy 💘🥰"}, {"id": 18, "prompt": "I’ll eat breakfast and take care cats 🐱👍", "a": "Un eat well then 🥰💝", "b": "Ohayooo 💖💖💖"}, {"id": 19, "prompt": "i forgot what my answers were tho", "a": "I remember after class I asked u and we both got the mutation answer the same and we both got the greedy and a* the same 😌", "b": "I'll give u the answers tomorrow"}, {"id": 20, "prompt": "Yea beta", "a": "I'll give u a head pat next time I see u", "b": "Gym beta"}, {"id": 21, "prompt": ".... Treat u to buffet", "a": "Hmmmmmm okay okay deal 🤝", "b": "Okay okay I'll let u continue to be king of the world 🥹"}, {"id": 22, "prompt": "he doesn't care what he eats", "a": "Yeah.. I eat chips and soda almost everyday", "b": "I'll eat u"}, {"id": 23, "prompt": "heh whats white pee (ik what it is)", "a": "Good 😼", "b": "Good morning 😽"}, {"id": 24, "prompt": "😆😆looks good eat lots rami", "a": "Ig it'll just be me and one more 😌 ig she won't even show up to class", "b": "Hehehehehehehheh 🥸🥸😛"}, {"id": 25, "prompt": "Yeah yeah it’s okay ~~~🥰 but Un I have to get ready now ~~😅", "a": "Un then please msg me when u go 🙏🙏🙏🙏", "b": "Ah r u going with Nanako?"}, {"id": 26, "prompt": "wait", "a": "I'm sorry, it doesn't seem that you enjoy talking to me. I don't want to make you sad", "b": "Waiting"}, {"id": 27, "prompt": "wait u removed my continuation for question 2a", "a": "Oh wait really??? Lemme see", "b": "Hehe"}, {"id": 28, "prompt": ":c im eepy", "a": "Just rest up my shi~ there's no use in stressing u out 😌", "b": "You should take a nap!"}, {"id": 29, "prompt": "i know you're very isfp but we always wanna make sure you're okay 😊😊😊😊😊", "a": "It's not the same without u 🥺🥺", "b": "😮💨 ur projecting"}];
+let idx = 0, answers = {}, rater = "";
+function start(){
+  rater = document.getElementById('rater').value.trim() || "anonymous";
+  document.getElementById('setup').style.display='none';
+  document.getElementById('quiz').style.display='block';
+  render();
+}
+function render(){
+  const it = ITEMS[idx];
+  document.getElementById('n').innerHTML = '<small>'+(idx+1)+' of '+ITEMS.length+'</small>';
+  document.getElementById('fill').style.width = (idx/ITEMS.length*100)+'%';
+  document.getElementById('prompt').textContent = it.prompt;
+  document.getElementById('optA').textContent = it.a;
+  document.getElementById('optB').textContent = it.b;
+}
+function pick(choice){
+  answers[ITEMS[idx].id] = choice;
+  idx++;
+  if(idx >= ITEMS.length){
+    document.getElementById('quiz').style.display='none';
+    document.getElementById('done').style.display='block';
+    document.getElementById('code').value = JSON.stringify({rater: rater, answers: answers});
+  } else { render(); }
+}
+</script></body></html>
